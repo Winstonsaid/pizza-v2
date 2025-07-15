@@ -1,5 +1,8 @@
 import React from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 
+import { setCategoryId } from "../redux/slices/filterSlice";
 import Categories from "../components/Categories";
 import Sort from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
@@ -9,34 +12,36 @@ import Search from "../components/search";
 import { SearchContext } from "../App";
 
 const Home = () => {
+  const dispatch = useDispatch();
+  const { categoryId, sort } = useSelector((state) => state.filter);
+  const sortType = sort.sortProperty;
+
+  const onChangeCategory = (id) => {
+    dispatch(setCategoryId(id));
+  };
+  console.log("category id", categoryId);
+  console.log("setCategoryId:", setCategoryId);
   const { searchValue } = React.useContext(SearchContext);
   const [items, setItems] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [categoryId, setCategoryId] = React.useState(0);
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [sortType, setSortType] = React.useState({
-    name: "популярности",
-    sortProperty: "rating",
-  });
 
   React.useEffect(() => {
     setIsLoading(true);
 
     const search = searchValue ? `&search=${searchValue}` : "";
 
-    fetch(
-      ` https://686ba7e1e559eba908737d45.mockapi.io/items?page=${currentPage}&limit=4&${
-        categoryId > 0 ? `category=${categoryId}` : ""
-      }&sortBy=${sortType.sortProperty}&order=desc${search}`
-    )
-      .then((res) => res.json())
-      .then((arr) => {
-        const validItems = Array.isArray(arr)
-          ? arr.filter((item) => item && item.title)
-          : [];
-        setItems(validItems);
+    axios
+      .get(
+        ` https://686ba7e1e559eba908737d45.mockapi.io/items?page=${currentPage}&limit=4&${
+          categoryId > 0 ? `category=${categoryId}` : ""
+        }&sortBy=${sortType.sortProperty}&order=desc${search}`
+      )
+      .then((res) => {
+        setItems(res.data);
         setIsLoading(false);
       });
+
     window.scrollTo(0, 0);
   }, [categoryId, sortType, searchValue, currentPage]);
 
@@ -46,11 +51,8 @@ const Home = () => {
     <>
       {" "}
       <div className="content__top">
-        <Categories
-          value={categoryId}
-          onChangeCategory={(i) => setCategoryId(i)}
-        />
-        <Sort value={sortType} onChangeSort={(i) => setSortType(i)} />
+        <Categories value={categoryId} onChangeCategory={onChangeCategory} />
+        <Sort />
       </div>
       <h2 className="content__title">Все пиццы</h2>
       <div className="content__items">
