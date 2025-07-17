@@ -14,7 +14,7 @@ import Sort, { sortList } from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from "../components/Pagination";
-// import Search from "../components/search";
+import Search from "../components/search";
 import { SearchContext } from "../App";
 
 const Home = () => {
@@ -40,21 +40,40 @@ const Home = () => {
     dispatch(setCurrentPage(number));
   };
 
-  const fetchPizzas = () => {
+  const fetchPizzas = async () => {
     setIsLoading(true);
 
     const Search = searchValue ? `&search=${searchValue}` : "";
 
-    axios
-      .get(
+    // await axios
+    //   .get(
+    //     ` https://686ba7e1e559eba908737d45.mockapi.io/items?page=${currentPage}&limit=4&${
+    //       categoryId > 0 ? `category=${categoryId}` : ""
+    //     }&sortBy=${sortType.sortProperty}&order=desc${Search}`
+    //   )
+    //   .then((res) => {
+    //     setItems(res.data);
+    //     setIsLoading(false);
+    //   }).catch(err => {
+    //     setIsLoading(false);
+    //   });
+
+    try {
+      const res = await axios.get(
         ` https://686ba7e1e559eba908737d45.mockapi.io/items?page=${currentPage}&limit=4&${
           categoryId > 0 ? `category=${categoryId}` : ""
         }&sortBy=${sortType.sortProperty}&order=desc${Search}`
-      )
-      .then((res) => {
-        setItems(res.data);
-        setIsLoading(false);
-      });
+      );
+      setItems(res.data);
+
+      console.log(1211212);
+    } catch (error) {
+      alert("Ошибка при получении пицц");
+    } finally {
+      setIsLoading(false);
+    }
+
+    window.scrollTo(0, 0);
   };
 
   React.useEffect(() => {
