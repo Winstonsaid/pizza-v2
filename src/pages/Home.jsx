@@ -1,10 +1,11 @@
 import React from "react";
 import qs from "qs";
-import axios from "axios";
+// import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { fetchPizzas } from "../redux/slices/pizzaSlice";
+import { Link, useNavigate } from "react-router-dom";
+import { fetchPizzas, selectPizzaData } from "../redux/slices/pizzaSlice";
 import {
+  selectFilter,
   setCategoryId,
   setCurrentPage,
   setFilters,
@@ -14,8 +15,8 @@ import Sort, { sortList } from "../components/Sort";
 import PizzaBlock from "../components/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from "../components/Pagination";
-import Search from "../components/search";
-import { SearchContext } from "../App";
+// import Search from "../components/search";
+// import { SearchContext } from "../App";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -23,13 +24,10 @@ const Home = () => {
   const isSearch = React.useRef(false);
   const isMounted = React.useRef(false);
 
-  const { categoryId, sort, currentPage } = useSelector(
-    (state) => state.filter
-  );
-  const { items, status } = useSelector((state) => state.pizza);
+  const { categoryId, sort, currentPage, searchValue } =
+    useSelector(selectFilter);
+  const { items, status } = useSelector(selectPizzaData);
   const sortType = sort?.sortProperty || "rating";
-
-  const { searchValue } = React.useContext(SearchContext);
 
   const onChangeCategory = (id) => {
     dispatch(setCategoryId(id));
@@ -97,7 +95,7 @@ const Home = () => {
     isSearch.current = false;
   }, [categoryId, sort.sortProperty, searchValue, currentPage]);
 
-  const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
+  // const pizzas = items.map((obj) => <PizzaBlock key={obj.id} {...obj} />);
 
   return (
     <div className="container">
@@ -110,7 +108,11 @@ const Home = () => {
         {status === "loading" ? (
           [...new Array(6)].map((_, index) => <Skeleton key={index} />)
         ) : items.length > 0 ? (
-          items.map((obj) => <PizzaBlock key={obj.id} {...obj} />)
+          items.map((obj) => (
+            <Link key={obj.id} to={`/pizza/${obj.id}`}>
+              <PizzaBlock {...obj} />
+            </Link>
+          ))
         ) : (
           <h2 style={{ textAlign: "center", width: "100%" }}>
             Ничего не найдено 😕
