@@ -16,9 +16,8 @@ import PizzaBlock from "../components/PizzaBlock";
 import Skeleton from "../components/PizzaBlock/Skeleton";
 import Pagination from "../components/Pagination";
 // import Search from "../components/search";
-// import { SearchContext } from "../App";
 
-const Home = () => {
+const Home: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isSearch = React.useRef(false);
@@ -29,18 +28,19 @@ const Home = () => {
   const { items, status } = useSelector(selectPizzaData);
   const sortType = sort?.sortProperty || "rating";
 
-  const onChangeCategory = (id) => {
-    dispatch(setCategoryId(id));
+  const onChangeCategory = (idx: number) => {
+    dispatch(setCategoryId(idx));
   };
 
-  const onChangePage = (number) => {
-    dispatch(setCurrentPage(number));
+  const onChangePage = (value: number) => {
+    dispatch(setCurrentPage(value));
   };
 
   const getPizzas = async () => {
     const Search = searchValue ? `&search=${searchValue}` : "";
 
     dispatch(
+      // @ts-ignore
       fetchPizzas({
         Search,
         categoryId,
@@ -108,7 +108,7 @@ const Home = () => {
         {status === "loading" ? (
           [...new Array(6)].map((_, index) => <Skeleton key={index} />)
         ) : items.length > 0 ? (
-          items.map((obj) => (
+          items.map((obj: any) => (
             <Link key={obj.id} to={`/pizza/${obj.id}`}>
               <PizzaBlock {...obj} />
             </Link>
